@@ -5,8 +5,11 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38bdf8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL_%2B_pgvector-3ecf8e?style=flat-square&logo=supabase)](https://supabase.com/)
+[![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=flat-square&logo=vercel)](https://raphael-ai-phi.vercel.app/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
+> **🚀 Live Demo**: [https://raphael-ai-phi.vercel.app](https://raphael-ai-phi.vercel.app)
+>
 > A production-grade multi-tenant AI document research platform powered by **Hybrid Retrieval-Augmented Generation (pgvector cosine similarity + PostgreSQL full-text search)** with **Reciprocal Rank Fusion (RRF)**, exact page-level source citations, grounded anti-hallucination guards, multi-LLM cascading fallback, and an automated evaluation test harness.
 
 ---
