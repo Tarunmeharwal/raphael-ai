@@ -1,0 +1,37 @@
+[
+  {
+    "id": "q1",
+    "question": "When did the Battle of Plassey take place?",
+    "expectedKeywords": ["1757", "Plassey", "June", "23"],
+    "expectedPage": 42,
+    "isOutOfScope": false
+  },
+  {
+    "id": "q2",
+    "question": "Who was the commander of the British East India Company forces at Plassey?",
+    "expectedKeywords": ["Robert Clive", "Clive"],
+    "expectedPage": 42,
+    "isOutOfScope": false
+  },
+  {
+    "id": "q3",
+    "question": "What were the primary economic impacts described in the treaty?",
+    "expectedKeywords": ["revenue", "trade", "tax", "compensation"],
+    "expectedPage": 43,
+    "isOutOfScope": false
+  },
+  {
+    "id": "q4",
+    "question": "What is the forecasted weather and temperature on Mars next week?",
+    "expectedKeywords": [],
+    "expectedPage": null,
+    "isOutOfScope": true
+  },
+  {
+    "id": "q5",
+    "question": "Explain quantum chromodynamics and gluon self-interaction.",
+    "expectedKeywords": [],
+    "expectedPage": null,
+    "isOutOfScope": true
+  }
+]

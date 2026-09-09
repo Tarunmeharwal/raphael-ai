@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: var(--font-serif), Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
+@layer base {
+  :root {
+    --background: #0b0c10;
+    --surface: #12141a;
+    --surface-hover: #191c24;
+    --surface-card: #151820;
+    --border-subtle: rgba(255, 255, 255, 0.07);
+    --border-hover: rgba(255, 255, 255, 0.14);
+    --foreground: #f0f2f5;
+    --muted: #8b92a0;
+    --muted-light: #b0b7c3;
+    --accent: #6366f1;
+    --accent-glow: rgba(99, 102, 241, 0.15);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+.font-serif-display {
+  font-family: var(--font-serif);
+}
+
+.font-sans-ui {
+  font-family: var(--font-sans);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Ambient canvas background (Gemini & Arena style) */
+.ambient-canvas {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 20%, rgba(99, 102, 241, 0.07), transparent 70%),
+    radial-gradient(ellipse 40% 35% at 50% 35%, rgba(6, 182, 212, 0.05), transparent 60%),
+    #0b0c10;
+}
+
+/* Floating pill search input glow */
+.input-pill-shadow {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.input-pill-shadow:focus-within {
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.5), 0 0 20px -4px rgba(99, 102, 241, 0.25);
+}
