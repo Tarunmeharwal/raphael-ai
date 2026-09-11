@@ -8,7 +8,6 @@ import { streamGroundedAnswer, SourceCitation } from '@/lib/rag/llm-stream';
 
 // Prevent Vercel from killing the SSE stream before it finishes.
 // Default is 10s which cuts off long AI responses mid-stream.
-export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {

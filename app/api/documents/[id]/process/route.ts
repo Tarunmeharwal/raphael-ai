@@ -6,7 +6,6 @@ import { embedBatch } from '@/lib/rag/embeddings';
 
 // Tell Vercel this route can run up to 60s (Hobby limit).
 // Setting this > 60 on Hobby plan causes instant 500 crashes.
-export const maxDuration = 60;
 
 export async function POST(
   req: NextRequest,
