@@ -4,6 +4,11 @@ import { extractTextFromPDF } from '@/lib/rag/pdf-parser';
 import { chunkDocumentPages } from '@/lib/rag/chunker';
 import { embedBatch } from '@/lib/rag/embeddings';
 
+// Tell Vercel this route can run up to 300s (Pro) or 60s (Hobby).
+// Without this, it defaults to 10s and kills mid-response causing
+// "Unexpected end of JSON input" errors on the client.
+export const maxDuration = 300;
+
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }

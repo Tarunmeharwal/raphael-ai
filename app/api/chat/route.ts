@@ -6,6 +6,10 @@ import { embedText } from '@/lib/rag/embeddings';
 import { executeHybridSearch } from '@/lib/rag/hybrid-search';
 import { streamGroundedAnswer, SourceCitation } from '@/lib/rag/llm-stream';
 
+// Prevent Vercel from killing the SSE stream before it finishes.
+// Default is 10s which cuts off long AI responses mid-stream.
+export const maxDuration = 60;
+
 export async function POST(req: NextRequest) {
   try {
     const tenant = await getTenantContext();
