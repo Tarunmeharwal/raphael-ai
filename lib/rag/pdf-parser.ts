@@ -75,6 +75,14 @@ export interface PDFExtractionResult {
  * or canvas, making it 100% reliable in serverless environments (like Vercel).
  */
 export async function extractTextFromPDF(buffer: Buffer): Promise<PDFExtractionResult> {
+  // Pre-load the worker into memory so pdfjs uses in-memory WorkerMessageHandler
+  // without attempting to dynamically resolve external filesystem paths on Vercel Lambda
+  if (!(globalThis as any).pdfjsWorker) {
+    // @ts-ignore
+    const worker = await import('pdfjs-dist/legacy/build/pdf.worker.mjs');
+    (globalThis as any).pdfjsWorker = worker;
+  }
+
   // Dynamically load the legacy build of pdfjs-dist designed for Node.js / serverless
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
 
