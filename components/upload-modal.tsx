@@ -109,7 +109,11 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
 
       if (signal.aborted) return;
 
-      const data = await res.json();
+      // Safely parse JSON — if the server returns empty body, show a real error
+      const rawText = await res.text();
+      if (!rawText) throw new Error(`Server returned empty response (HTTP ${res.status}). Check Vercel env vars: SUPABASE_SERVICE_ROLE_KEY`);
+      let data: any;
+      try { data = JSON.parse(rawText); } catch { throw new Error(`Server error (${res.status}): ${rawText.slice(0, 300)}`); }
       if (!res.ok) throw new Error(data.error || 'Failed to register document');
 
       const uploadedDoc = data.document;
@@ -124,7 +128,10 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
 
       if (signal.aborted) return;
 
-      const processData = await processRes.json();
+      const processRawText = await processRes.text();
+      if (!processRawText) throw new Error(`Processing timed out or server returned empty response (HTTP ${processRes.status})`);
+      let processData: any;
+      try { processData = JSON.parse(processRawText); } catch { throw new Error(`Process server error (${processRes.status}): ${processRawText.slice(0, 300)}`); }
       if (!processRes.ok) throw new Error(processData.error || 'Document processing failed');
 
       onSuccess(processData.document || uploadedDoc);

@@ -5,6 +5,14 @@ import { getTenantContext } from '@/lib/auth/context';
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 
 export async function POST(req: NextRequest) {
+  // Guard: Ensure required env vars are present (missing vars cause silent empty responses)
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json(
+      { error: 'Server misconfiguration: Missing SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL env vars on Vercel.' },
+      { status: 500 }
+    );
+  }
+
   try {
     const tenant = await getTenantContext();
     const body = await req.json();
