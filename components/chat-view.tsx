@@ -13,6 +13,7 @@ import {
   X,
   Copy,
   Check,
+  Loader2,
 } from 'lucide-react';
 import { CitationBadge } from './citation-badge';
 import { SourceCitation } from '@/lib/rag/llm-stream';
@@ -328,10 +329,14 @@ export function ChatView({
                   <button
                     onClick={() => handleSendMessage()}
                     disabled={!inputQuestion.trim() || isLoading}
-                    className="w-8 h-8 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-20 disabled:hover:bg-indigo-600 flex items-center justify-center transition-all cursor-pointer shadow-sm shrink-0"
+                    className="w-8 h-8 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50 disabled:hover:bg-indigo-600 flex items-center justify-center transition-all cursor-pointer shadow-sm shrink-0"
                     title="Send message"
                   >
-                    <ArrowUp className="w-4 h-4 stroke-[2.5]" />
+                    {isLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <ArrowUp className="w-4 h-4 stroke-[2.5]" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -387,9 +392,18 @@ export function ChatView({
                   <div className="select-text">
                     {msg.role === 'assistant' ? (
                       <div className="relative">
-                        <MarkdownRenderer content={cleanRedundantCitations(msg.content)} />
-                        {msg.isStreaming && (
-                          <span className="inline-block w-1.5 h-3.5 ml-1 bg-indigo-400 animate-pulse rounded-full align-middle" />
+                        {!msg.content && msg.isStreaming ? (
+                          <div className="flex items-center gap-2 text-indigo-400/80 py-1">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span className="text-sm font-medium animate-pulse">Researching context...</span>
+                          </div>
+                        ) : (
+                          <>
+                            <MarkdownRenderer content={cleanRedundantCitations(msg.content)} />
+                            {msg.isStreaming && (
+                              <span className="inline-block w-1.5 h-3.5 ml-1 bg-indigo-400 animate-pulse rounded-full align-middle" />
+                            )}
+                          </>
                         )}
                       </div>
                     ) : (
@@ -484,10 +498,14 @@ export function ChatView({
               <button
                 onClick={() => handleSendMessage()}
                 disabled={!inputQuestion.trim() || isLoading}
-                className="w-8 h-8 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-20 flex items-center justify-center transition-all cursor-pointer shadow-sm shrink-0"
+                className="w-8 h-8 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50 flex items-center justify-center transition-all cursor-pointer shadow-sm shrink-0"
                 title="Send query"
               >
-                <ArrowUp className="w-4 h-4 stroke-[2.5]" />
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ArrowUp className="w-4 h-4 stroke-[2.5]" />
+                )}
               </button>
             </div>
             <p className="text-center text-[10px] text-slate-500 mt-2">

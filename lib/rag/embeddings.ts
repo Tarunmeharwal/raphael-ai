@@ -67,7 +67,7 @@ export async function embedText(text: string, retries = 3): Promise<number[]> {
  */
 export async function embedBatch(
   texts: string[],
-  batchSize = 10,
+  batchSize = 50,
   onProgress?: (processed: number, total: number) => void
 ): Promise<number[][]> {
   const apiKey = process.env.GEMINI_API_KEY || GEMINI_API_KEY;
@@ -102,7 +102,7 @@ export async function embedBatch(
         if (!res.ok) {
           const errText = await res.text();
           if (res.status === 429 && attempt < maxRetries) {
-            const backoff = Math.pow(2, attempt) * 1500 + Math.random() * 500;
+            const backoff = Math.pow(2, attempt) * 2000 + Math.random() * 500;
             console.warn(`[Gemini Batch Embed] 429 Rate limited. Waiting ${Math.round(backoff)}ms...`);
             await sleep(backoff);
             attempt++;
@@ -122,7 +122,7 @@ export async function embedBatch(
         batchSuccess = true;
       } catch (err: any) {
         if (attempt < maxRetries) {
-          const backoff = Math.pow(2, attempt) * 1500 + Math.random() * 500;
+          const backoff = Math.pow(2, attempt) * 2000 + Math.random() * 500;
           await sleep(backoff);
           attempt++;
         } else {
@@ -141,9 +141,9 @@ export async function embedBatch(
       onProgress(Math.min(i + batchSize, texts.length), texts.length);
     }
 
-    // Gentle 300ms pause between batches to stay comfortably within the 10 RPM rate limit
+    // Gentle 4200ms pause between batches to stay comfortably within the 15 RPM rate limit
     if (i + batchSize < texts.length) {
-      await sleep(350);
+      await sleep(4200);
     }
   }
 

@@ -110,7 +110,7 @@ export async function POST(
 
     // 6. Generate Embeddings via Gemini (batched with backoff)
     const chunkTexts = rawChunks.map((c) => c.content);
-    const embeddings = await embedBatch(chunkTexts, 10);
+    const embeddings = await embedBatch(chunkTexts, 50);
 
     // 7. Clean up any previous chunks for this document (idempotency)
     await supabaseAdmin

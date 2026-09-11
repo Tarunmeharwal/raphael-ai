@@ -32,30 +32,29 @@ export async function POST(req: NextRequest) {
 
     const trimmedQuestion = question.trim();
 
-    // 1. Conversation Management: Create or re-use conversation ID
-    let conversationId = incomingConvId;
-    if (!conversationId) {
-      const title = trimmedQuestion.slice(0, 40) + (trimmedQuestion.length > 40 ? '...' : '');
-      const { data: newConv } = await supabaseAdmin
-        .from('conversations')
-        .insert({
-          organization_id: tenant.organizationId,
-          user_id: tenant.userId,
-          document_id: documentId,
-          title,
-        })
-        .select('id')
-        .single();
+    // 1 & 2 in PARALLEL: Create conversation + rewrite query simultaneously
+    const [searchTargetQuery, conversationId] = await Promise.all([
+      // Query rewriting (calls Gemini Flash Lite ~400ms)
+      rewriteQueryIfFollowUp(trimmedQuestion, history),
+      // Conversation creation (DB insert ~200ms)
+      (async () => {
+        if (incomingConvId) return incomingConvId;
+        const title = trimmedQuestion.slice(0, 40) + (trimmedQuestion.length > 40 ? '...' : '');
+        const { data: newConv } = await supabaseAdmin
+          .from('conversations')
+          .insert({
+            organization_id: tenant.organizationId,
+            user_id: tenant.userId,
+            document_id: documentId,
+            title,
+          })
+          .select('id')
+          .single();
+        return newConv?.id ?? null;
+      })(),
+    ]);
 
-      if (newConv) {
-        conversationId = newConv.id;
-      }
-    }
-
-    // 2. Query Rewriting for follow-up questions
-    const searchTargetQuery = await rewriteQueryIfFollowUp(trimmedQuestion, history);
-
-    // 3. Generate 768-dim query embedding
+    // 3. Generate 768-dim query embedding (calls Gemini ~400ms)
     const queryEmbedding = await embedText(searchTargetQuery);
 
     // 4. Hybrid Search + RRF Fusion
@@ -68,8 +67,8 @@ export async function POST(req: NextRequest) {
       queryEmbedding,
       documentId,
       organizationId: tenant.organizationId,
-      vectorTopK: 20,
-      keywordTopK: 20,
+      vectorTopK: 10,
+      keywordTopK: 10,
       finalTopK: isSummaryQuery ? 10 : 6,
       confidenceThreshold: isSummaryQuery ? 0.008 : 0.012,
     });
