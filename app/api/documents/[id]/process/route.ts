@@ -4,14 +4,16 @@ import { extractTextFromPDF } from '@/lib/rag/pdf-parser';
 import { chunkDocumentPages } from '@/lib/rag/chunker';
 import { embedBatch } from '@/lib/rag/embeddings';
 
-// Tell Vercel this route can run up to 60s (Hobby limit).
-// Setting this > 60 on Hobby plan causes instant 500 crashes.
+// Tell Vercel this route can run up to 60s (Hobby maximum).
+export const maxDuration = 60;
 
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   const { id: documentId } = await context.params;
+
+  console.log(`[Process Route] Request received for document ID: ${documentId}`);
 
   if (!documentId) {
     return NextResponse.json({ error: 'Document ID is required' }, { status: 400 });
@@ -93,9 +95,11 @@ export async function POST(
     if (!fileBuffer || fileBuffer.length === 0) {
       throw new Error(`Failed to retrieve file from storage or URL for document: ${doc.name}`);
     }
+    console.log(`[Process ${documentId}] File buffer ready (${fileBuffer.length} bytes). Extracting text...`);
 
     // 4. Extract text preserving page numbers
     const { totalPages, pages } = await extractTextFromPDF(fileBuffer);
+    console.log(`[Process ${documentId}] Extracted text from ${totalPages} pages.`);
 
     if (pages.length === 0 || pages.every((p) => !p.text.trim())) {
       throw new Error('No readable text could be extracted from this PDF. It may be scanned or empty.');
@@ -110,10 +114,12 @@ export async function POST(
     if (rawChunks.length === 0) {
       throw new Error('Document contained no parsable content after chunking.');
     }
+    console.log(`[Process ${documentId}] Chunked into ${rawChunks.length} chunks. Generating embeddings...`);
 
     // 6. Generate Embeddings via Gemini (batched with backoff)
     const chunkTexts = rawChunks.map((c) => c.content);
     const embeddings = await embedBatch(chunkTexts, 50);
+    console.log(`[Process ${documentId}] Generated ${embeddings.length} embeddings successfully.`);
 
     // 7. Clean up any previous chunks for this document (idempotency)
     await supabaseAdmin
@@ -144,6 +150,7 @@ export async function POST(
         throw new Error(`Failed storing document chunks: ${insertErr.message}`);
       }
     }
+    console.log(`[Process ${documentId}] Inserted all chunks into Supabase.`);
 
     // 9. Update document status to 'processed'
     const { data: updatedDoc, error: updateErr } = await supabaseAdmin

@@ -13,7 +13,7 @@ console.warn = function (...args: any[]) {
 };
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['pdf-parse', 'pdfjs-dist'],
+  serverExternalPackages: ['pdfjs-dist'],
 };
 
 export default nextConfig;
