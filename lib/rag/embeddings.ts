@@ -88,7 +88,7 @@ export async function embedBatch(
     }));
 
     let attempt = 0;
-    const maxRetries = 3;
+    const maxRetries = 1;
     let batchSuccess = false;
 
     while (attempt <= maxRetries && !batchSuccess) {
@@ -101,14 +101,18 @@ export async function embedBatch(
 
         if (!res.ok) {
           const errText = await res.text();
+          // Fast-fail on quota exhaustion — retrying is pointless
+          if (res.status === 429 && errText.includes('RESOURCE_EXHAUSTED')) {
+            throw new Error('Gemini API daily quota exhausted. Please wait 24 hours or use a different API key.');
+          }
           if (res.status === 429 && attempt < maxRetries) {
-            const backoff = Math.pow(2, attempt) * 2000 + Math.random() * 500;
+            const backoff = 2000 + Math.random() * 500;
             console.warn(`[Gemini Batch Embed] 429 Rate limited. Waiting ${Math.round(backoff)}ms...`);
             await sleep(backoff);
             attempt++;
             continue;
           }
-          throw new Error(`batchEmbedContents error [${res.status}]: ${errText}`);
+          throw new Error(`batchEmbedContents error [${res.status}]: ${errText.slice(0, 300)}`);
         }
 
         const data = await res.json();
@@ -121,18 +125,16 @@ export async function embedBatch(
         }
         batchSuccess = true;
       } catch (err: any) {
+        // Propagate quota errors immediately — don't waste time retrying
+        if (err.message.includes('quota exhausted') || err.message.includes('RESOURCE_EXHAUSTED')) {
+          throw err;
+        }
         if (attempt < maxRetries) {
-          const backoff = Math.pow(2, attempt) * 2000 + Math.random() * 500;
+          const backoff = 2000 + Math.random() * 500;
           await sleep(backoff);
           attempt++;
         } else {
-          // Fallback: process this batch one-by-one
-          console.warn('[Gemini Embed] Batch failed, falling back to sequential calls for batch');
-          for (const item of chunkBatch) {
-            const single = await embedText(item);
-            allEmbeddings.push(single);
-          }
-          batchSuccess = true;
+          throw err;
         }
       }
     }
@@ -141,7 +143,7 @@ export async function embedBatch(
       onProgress(Math.min(i + batchSize, texts.length), texts.length);
     }
 
-    // Gentle 4200ms pause between batches to stay comfortably within the 15 RPM rate limit
+    // Gentle 4200ms pause between batches to stay within the 15 RPM rate limit
     if (i + batchSize < texts.length) {
       await sleep(4200);
     }
